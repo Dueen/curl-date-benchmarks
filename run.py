@@ -26,7 +26,12 @@ run('checkout-curl',['git','checkout','--detach',base],source)
 assert (source/'lib/parsedate.c').read_bytes()==(root/'candidates/baseline.c').read_bytes()
 (source/'tests/unit/unit4781.c').write_bytes((root/'candidates/unit4781.c').read_bytes())
 run('configure',['cmake','-S',source,'-B',build,'-DCMAKE_BUILD_TYPE=Debug','-DENABLE_DEBUG=ON','-DCURL_ENABLE_SSL=OFF','-DCURL_USE_LIBPSL=OFF','-DCURL_USE_LIBSSH2=OFF','-DCURL_USE_LIBIDN2=OFF','-DCURL_BROTLI=OFF','-DCURL_ZSTD=OFF','-DCURL_ZLIB=OFF','-DUSE_NGHTTP2=OFF','-DCURL_DISABLE_LDAP=ON','-DCURL_DISABLE_LDAPS=ON','-DBUILD_SHARED_LIBS=OFF','-DBUILD_STATIC_LIBS=ON','-DBUILD_LIBCURL_DOCS=OFF','-DBUILD_MISC_DOCS=OFF','-DENABLE_CURL_MANUAL=OFF'])
-order=['pack2','pack3'];random.Random(replicate).shuffle(order)
+suite=os.environ.get('BENCHMARK_SUITE','packing')
+order=os.environ.get('BENCH_CANDIDATES','pack2,pack3').split(',')
+assert len(order)==2 and all(v in ['pack2','pack3','weekday_lengths','tz_fastpath'] for v in order)
+if replicate%2==0: order.reverse()
+metadata['suite']=suite;metadata['candidate_order']=order
+(results/'environment.json').write_text(json.dumps(metadata,indent=2)+'\n')
 (results/'variant-order.json').write_text(json.dumps(order)+'\n')
 for variant in ['baseline',*order]:
  (source/'lib/parsedate.c').write_bytes((root/'candidates'/(variant+'.c')).read_bytes())
@@ -39,7 +44,9 @@ run('build-baseline-final',['cmake','--build',build,'--target','curl','testdeps'
 for variant in order:
  dest=results/variant;dest.mkdir(exist_ok=True)
  for script in ['bench.c','reproduce.py','perf.py','paired-summary.py']:
-  shutil.copyfile(root/script,dest/('summarize.py' if script=='paired-summary.py' else script))
+  origin=root/('bench-work.c' if script=='bench.c' and suite=='work-reduction' else script)
+  shutil.copyfile(origin,dest/('summarize.py' if script=='paired-summary.py' else script))
+ if suite=='work-reduction': shutil.copyfile(root/'zones.h',dest/'zones.h')
  env=os.environ.copy();env['CURL_CANDIDATE_SOURCE']=str(root/'candidates'/(variant+'.c'))
  run(variant+'-sanitize',[sys.executable,dest/'reproduce.py',source,build,'--sanitize'],env=env)
  env_unsigned=env.copy();env_unsigned['EXTRA_CFLAGS']='-funsigned-char'

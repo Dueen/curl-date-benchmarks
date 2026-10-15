@@ -3,13 +3,14 @@
 import base64,csv,hashlib,io,os,pathlib,tarfile
 root=pathlib.Path(__file__).resolve().parent
 results=root/'results';results.mkdir(exist_ok=True)
-lines=['### Native x86 paired latency changes','', '| Candidate | Compiler | Curl perf | Random corpus | Valid months | Valid weekdays |','|---|---|---:|---:|---:|---:|']
-for candidate in ['pack2','pack3']:
+columns='Full weekdays | GMT parsing' if os.environ.get('BENCHMARK_SUITE')=='work-reduction' else 'Valid months | Valid weekdays'
+lines=['### Native x86 paired latency changes','', '| Candidate | Compiler | Curl perf | Random corpus | '+columns+' |','|---|---|---:|---:|---:|---:|']
+for candidate in os.environ.get('BENCH_CANDIDATES','pack2,pack3').split(','):
  f=results/candidate/'summary.csv'
  if not f.exists():continue
  rows=list(csv.DictReader(f.open()));lookup={(x['compiler'],x['workload']):x for x in rows}
  for compiler in ['clang-O2','clang-O3','gcc-O2','gcc-O3']:
-  keys=['curl-original-perf','parser-corpus-random','month-valid','day-valid']
+  keys=['curl-original-perf','parser-corpus-random','day-full','parser-gmt'] if os.environ.get('BENCHMARK_SUITE')=='work-reduction' else ['curl-original-perf','parser-corpus-random','month-valid','day-valid']
   if not all((compiler,k) in lookup for k in keys):continue
   lines.append('| '+candidate+' | '+compiler+' | '+' | '.join(f"{float(lookup[compiler,k]['paired_median_delta_pct']):+.2f}%" for k in keys)+' |')
 lines+=['','Negative means faster. Hosted VMs can be noisy; compare all three replicates and CPU metadata. Raw evidence is encoded in this job log. No paid runner, cache or artifact upload is used.']

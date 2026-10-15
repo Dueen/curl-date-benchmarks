@@ -15,8 +15,8 @@ with (root/'assembly.csv').open('w') as out:
     sizeout=subprocess.check_output(['size','-A',str(obj)],text=True);(d/(prefix+'.size')).write_text(sizeout)
     textbytes=sum(int(m[1]) for m in re.finditer(r'^\.text(?:\.\S+)?\s+(\d+)\s+',sizeout,re.M))
     ins=[(int(m[1],16),m[2]) for m in re.finditer(r'^\s*([\da-f]+):\s+(\S+)',text,re.M)]
-    for name in (['checkday','checkmonth'] if unit else ['ALL']):
+    for name in (['checkday','checkmonth','checktz'] if unit else ['ALL']):
      if name=='ALL':ops=[x[1] for x in ins];length=textbytes
      else:
-      start,length=symbols[v+'_'+name];ops=[x[1] for x in ins if start<=x[0]<start+length]
+      start,length=symbols[v+('_unit_' if name=='checktz' else '_')+name];ops=[x[1] for x in ins if start<=x[0]<start+length]
      w.writerow([d.name,v,'unit' if unit else 'normal',name,len(ops),sum(x.startswith('j') and x not in ['jmp','jmpq'] or x.startswith('loop') for x in ops),sum(x in ['jmp','jmpq'] for x in ops),sum(x in ['call','callq'] for x in ops),length])
