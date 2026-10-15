@@ -1,0 +1,36 @@
+name: Native x86 date benchmarks
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  benchmark:
+    if: github.event.repository.private == false
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        replicate: [1, 2, 3]
+    env:
+      CC_CLANG: clang-17
+      CC_GCC: gcc-14
+      BENCH_REPLICATE: ${{ matrix.replicate }}
+    steps:
+      - name: Fetch this exact benchmark commit
+        shell: bash
+        run: |
+          git init bench
+          git -C bench remote add origin "https://github.com/$GITHUB_REPOSITORY.git"
+          git -C bench fetch --depth=1 origin "$GITHUB_SHA"
+          git -C bench checkout --detach FETCH_HEAD
+      - name: Run both candidates on native x86-64
+        shell: bash
+        run: python3 bench/run.py
+      - name: Preserve results in free job logs
+        if: always()
+        shell: bash
+        run: |
+          if test -f bench/bundle.py; then
+            python3 bench/bundle.py
+          fi
