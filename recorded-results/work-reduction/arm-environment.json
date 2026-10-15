@@ -1,0 +1,9 @@
+{
+  "system": "macOS-27.0.1-arm64-arm-64bit",
+  "machine": "arm64",
+  "cpu": "ARM64; model not queried in sandbox",
+  "clang": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n",
+  "gcc": "gcc-16 (Homebrew GCC 16.2.0) 16.2.0\nCopyright (C) 2026 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+  "affinity": "not pinned (macOS)",
+  "baseline": "653f7d7fa983938c4c9331d14c71bc9fa5a5aba8"
+}

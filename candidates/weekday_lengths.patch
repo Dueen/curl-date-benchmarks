@@ -1,0 +1,14 @@
+--- a/lib/parsedate.c
++++ b/lib/parsedate.c
+@@ -251,7 +251,10 @@
+       "day", "sday", "nesday", "rsday", "day", "urday", "day"
+     };
+ 
+-    size_t wlen = strlen(daysuffix[day]);
++    static const unsigned char daysuffixlen[] = {
++      3, 4, 6, 5, 3, 5, 3
++    };
++    size_t wlen = daysuffixlen[day];
+     if(((len - 3) != wlen) ||
+        !curl_strnequal(&check[3], daysuffix[day], wlen))
+       return -1;

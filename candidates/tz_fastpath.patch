@@ -1,0 +1,12 @@
+--- a/lib/parsedate.c
++++ b/lib/parsedate.c
+@@ -365,6 +365,9 @@
+     if(first > 'Y')
+       return -1;
+     find.tz = MKTZ(first, check[1], check[2], 0);
++    if((find.tz == MKTZ('G', 'M', 'T', 0)) ||
++       (find.tz == MKTZ('U', 'T', 'C', 0)))
++      return 0;
+     what = bsearch(&find, tzthree, CURL_ARRAYSIZE(tzthree),
+                    sizeof(tzthree[0]), tzcompare);
+     if(what)

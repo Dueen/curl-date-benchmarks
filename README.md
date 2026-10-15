@@ -1,6 +1,8 @@
 # Free native x86 curl date benchmark
 
-Completed native runs: [results and CPU comparisons](RESULTS.md).
+Completed native runs: [packed lookups](RESULTS.md), [weekday-length and timezone experiments](WORK-REDUCTION.md).
+
+Follow-up: [Node.js/V8, Fastify and NestJS source-review candidates](FOLLOWUP-CANDIDATES.md).
 
 Manual GitHub Actions workflow for a **public** benchmark repository. No upstream curl pull request is created. It compares current-master baseline `653f7d7fa983938c4c9331d14c71bc9fa5a5aba8` with portable three-byte and two-byte packed weekday/month lookups. Candidate snapshots and the same added unit4781 edge cases are included under curl's license. All benchmark source is inspectable before publication.
 
